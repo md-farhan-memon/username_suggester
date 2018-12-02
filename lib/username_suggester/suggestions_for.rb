@@ -23,14 +23,16 @@ module UsernameSuggester
       #
       def suggestions_for(attribute = :username, option_hash = {})
         options = {
-          :first_name_attribute => :first_name,
-          :last_name_attribute  => :last_name,
-          :num_suggestions      => 5,
-          :exclude              => []
+          :first_name_attribute   => :first_name,
+          :last_name_attribute    => :last_name,
+          :phone_attribute        => :phone,
+          :last_n_digits_of_phone => 4,
+          :num_suggestions        => 5,
+          :exclude                =>  []
         }.merge(option_hash)
-        
+
         define_method "#{attribute}_suggestions" do
-          suggester = Suggester.new(send(options[:first_name_attribute]), send(options[:last_name_attribute]))
+          suggester = Suggester.new(send(options[:first_name_attribute]), send(options[:last_name_attribute]), send(options[:phone_attribute]), options[:last_n_digits_of_phone])
           suggestions_to_search = suggester.name_combinations.map { |s| "#{s}%" }
 
           t = self.class.arel_table

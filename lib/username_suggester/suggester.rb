@@ -1,7 +1,7 @@
 module UsernameSuggester
   class Suggester
 
-    attr_reader :first_name, :last_name
+    attr_reader :first_name, :last_name, :phone_digits
 
     # A Suggester class to suggest user_names
     #
@@ -11,13 +11,14 @@ module UsernameSuggester
     # * <tt>:last_name</tt>   - Required.
     # * <tt>:options</tt>     - See UsernameSuggester::SuggestionsFor
     #
-    def initialize(first_name, last_name)
-      raise Error, "first_name or last_name has not been specified" if first_name.nil? || last_name.nil?
+    def initialize(first_name, last_name, phone, last_n_digits)
+      raise Error, "first_name or last_name or phone has not been specified" if first_name.blank? || last_name.blank? || phone.blank?
 
-      @first_name = first_name.downcase.gsub(/[^\w]/, '')
-      @last_name  = last_name.downcase.gsub(/[^\w]/, '')
+      @first_name   = first_name.downcase.gsub(/[\W]/, '')
+      @last_name    = last_name.downcase.gsub(/[\W]/, '')
+      @phone_digits = phone.gsub(/[\D]/, '')[-last_n_digits..-1]
     end
-    
+
     # Generates the combinations without the knowledge of what names are available
     def name_combinations
       @name_combinations ||= [
@@ -28,7 +29,15 @@ module UsernameSuggester
         "#{first_name}#{last_name}",
         "#{last_name[0]}#{first_name}",
         "#{last_name}#{first_name[0]}",
-        "#{last_name}#{first_name}"
+        "#{last_name}#{first_name}",
+        "#{first_name}#{phone_digits}",
+        "#{last_name}#{phone_digits}",
+        "#{first_name[0]}#{last_name}#{phone_digits}",
+        "#{phone_digits}#{first_name}#{last_name[0]}",
+        "#{first_name}#{last_name}#{phone_digits}",
+        "#{last_name[0]}#{first_name}#{phone_digits}",
+        "#{phone_digits}#{last_name}#{first_name[0]}",
+        "#{last_name}#{first_name}#{phone_digits}"
       ].uniq.reject { |s| s.blank? }
     end
     

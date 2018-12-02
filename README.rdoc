@@ -1,35 +1,47 @@
-= TODO: Rewrite the readme at it's soooo old :(
-
 = UsernameSuggester
 
 It generates username suggestions for users. 
 It works with MySQL and any DB that supports "RLIKE". If enough people request, I will add the support for not
 using RLIKE for those DB does not support it. (although it will be slower)
 
+==Forked Update
+
+Support for last digits of phone has been added for more combinations and suggestions
+It is working for me with following Ruby, Rails & DB
+
+* Ruby - 2.5.1
+* Rails - 5.2.0
+* DB - Postgres
+
 ==Usage
 
-In your environment.rb, add:
-  config.gem 'username_suggester'
+In your Gemfile, add:
+  gem 'username_suggester', git: 'https://github.com/md-farhan-memon/username_suggester', branch: 'master'
 
-Assume you have an User model with attributes :username, :firstname, :lastname
+Assume you have an User model with attributes :username, :firstname, :lastname, :mobile_no
 
   class User < ActiveRecord::Base
-    suggestions_for :username, :num_suggestions => 5,
-      :first_name_attribute => :firstname, :last_name_attribute => lastname
-    
+    suggestions_for :username,
+                    num_suggestions: 5,
+                    first_name_attribute: :firstname,
+                    last_name_attribute: lastname,
+                    phone_attribute: :mobile_no,
+                    last_n_digits_of_phone: 4
+
     ...
     
   end
 
 And now you can call the suggestion function like the following:
 
-  user = User.new(:firstname => "Jerry", :lastname => "Luk")
+  user = User.new(firstname: 'Jerry', lastname: 'Luk', mobile_no: '0123456789')
   user.username_suggestions
   
 You can also filter the suggestions, let's say you want the username to contain at least 4 characters:
 
-  suggestions_for :username, :num_suggestions => 10,
-    :validate => Proc.new { |username| username.length >= 4 }
+  suggestions_for :username,
+                  num_suggestions: 10,
+                  validate: proc { |username| username.length < 4 }
 
 
 Copyright (c) 2010 Presdo, released under the MIT license
